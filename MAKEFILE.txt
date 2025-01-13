@@ -1,0 +1,39 @@
+# Makefile for AVCOS Bootloader (x86_64)
+
+ASM = nasm
+CC = gcc
+LD = ld
+CFLAGS = -m64 -ffreestanding -02 -Wall -Wextra
+LDFLAGS = -T linker.ld -nostdlib
+
+all: bootloader 
+
+bootloader: boot.o loader.o gdt.o idt.o kernel_entry.o utils.o
+	$(LD) $(LDFLAGS) -o bootloader.bin boot.o loader.o gdt.o idt.o kernel_entry.o utils.o
+
+boot.o: boot.asm
+	$(ASM) -f elf64 boot.asm -o boot.o
+
+loader.o: loader.asm
+	$(ASM) -f elf64 loader.asm -o loader.o
+
+gdt.o: gdt.asm
+	$(ASM) -f elf64 gdt.asm -o gdt.o
+
+idt.o: idt.asm
+	$(ASM) -f elf64 idt.asm -o idt.o
+
+kernel_entry.o: kernel_entry.c
+	$(CC) $(CFLAGS) -c kernel_entry.c -o kernel_entry.o
+
+utils.o: utils.c
+	$(CC) $(CFLAGS) -c utils.c -o utils.o
+
+clean:
+	rm -f *.o *.bin *.iso
+
+iso: bootloader
+	mkdir -p iso/boot/grub
+	cp bootloader.bin iso/boot/avcos.bin
+	cp grub.cfg iso/boot/grub/grub.cfg
+	grub-mkrescue -o avcos.iso iso  
