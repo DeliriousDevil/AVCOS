@@ -2,7 +2,7 @@
 #include "../arch/x86_64/gdt.h"
 #include "../arch/x86_64/idt.h"
 #include "../arch/x86_64/paging.h"
-#include "../arch/x86_64/vga.h"
+#include "../drivers/vga.h"
 
 void kernel_init() {
     init_gdt();
